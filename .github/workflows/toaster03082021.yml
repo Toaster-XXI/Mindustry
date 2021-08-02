@@ -1,0 +1,65 @@
+name: compile mindustry
+
+on:
+
+  push
+
+jobs: 
+
+  compilegame:
+
+    runs-on: ubuntu-latest
+
+
+
+    steps: 
+
+    - uses: actions/checkout@v2
+
+    - name: Set up JDK 16
+
+      uses: actions/setup-java@v1
+
+      with:
+
+        java-version: 16
+
+    - name: setup android 
+
+      run: |
+        echo "${ANDROID_HOME}/build-tools/30.0.1" >> $GITHUB_PATH
+    - name: chmod
+
+      run: chmod +x ./gradlew
+
+    - name: пакинг спрайтов
+
+      run: ./gradlew pack
+
+    - name: пакинг минды в JAR
+
+      run: ./gradlew desktop:dist -Pbuildversion=129.1 -PverionType=release --stacktrace
+
+    - name: пакинг минды в андроид
+
+      run: ./gradlew android:assembleDebug -Pbuildversion=129.1 -PverionType=release --stacktrace
+
+    - name: выгрузка JAR
+
+      uses: actions/upload-artifact@v2
+
+      with:
+
+        name: PC version
+
+        path: desktop/build/libs/Mindustry.jar
+
+    - name: выгрузка APK
+
+      uses: actions/upload-artifact@v2
+
+      with:
+
+        name: Android version
+
+        path: android/build/outputs/apk/*
